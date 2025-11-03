@@ -1,0 +1,5 @@
+{
+  "name": "ระบบจัดการข้อมูล",
+  "description": "An intelligent dashboard for managing foreign worker documentation, enhanced with Gemini AI for document analysis, image editing, regulation research, and automated alerts.",
+  "requestFramePermissions": []
+}
