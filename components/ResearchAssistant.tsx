@@ -1,6 +1,7 @@
 
 import React, { useState, useCallback } from 'react';
-import { generateGroundedAnswer } from '../services/geminiService';
+// FIX: AI features are disabled.
+// import { generateGroundedAnswer } from '../services/geminiService';
 import { GroundingChunk } from '../types';
 // FIX: Import ResearchIcon to be used in the component.
 import { Spinner, ResearchIcon } from './Icons';
@@ -28,17 +29,19 @@ export const ResearchAssistant: React.FC = () => {
     setError(null);
 
     try {
-      const response = await generateGroundedAnswer(prompt);
-      const text = response.text;
-      const sources = response.candidates?.[0]?.groundingMetadata?.groundingChunks;
+      // FIX: AI features are disabled. The call to generateGroundedAnswer is removed and an error is shown instead.
+      // const response = await generateGroundedAnswer(prompt);
+      // const text = response.text;
+      // const sources = response.candidates?.[0]?.groundingMetadata?.groundingChunks;
       
-      const botMessage: Message = { text, isUser: false, sources: sources || [] };
-      setMessages([...newMessages, botMessage]);
+      // const botMessage: Message = { text, isUser: false, sources: sources || [] };
+      // setMessages([...newMessages, botMessage]);
+      setError('คุณสมบัติด้าน AI ถูกปิดใช้งาน');
 
     } catch (err) {
-      setError('ไม่สามารถรับคำตอบได้ กรุณาลองใหม่อีกครั้ง');
+      // setError('ไม่สามารถรับคำตอบได้ กรุณาลองใหม่อีกครั้ง');
+      setError('คุณสมบัติด้าน AI ถูกปิดใช้งาน');
       console.error(err);
-      setMessages(newMessages); // Revert to previous messages
     } finally {
       setIsLoading(false);
     }

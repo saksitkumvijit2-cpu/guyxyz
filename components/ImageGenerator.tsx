@@ -1,6 +1,7 @@
 
 import React, { useState, useCallback } from 'react';
-import { generateImage } from '../services/geminiService';
+// FIX: AI features are disabled.
+// import { generateImage } from '../services/geminiService';
 import { Spinner } from './Icons';
 
 const aspectRatios = ["1:1", "16:9", "9:16", "4:3", "3:4"];
@@ -21,10 +22,13 @@ export const ImageGenerator: React.FC = () => {
     setError(null);
     setGeneratedImage(null);
     try {
-      const resultBase64 = await generateImage(prompt, aspectRatio);
-      setGeneratedImage(`data:image/jpeg;base64,${resultBase64}`);
+      // FIX: AI features are disabled. The call to generateImage is removed and an error is shown instead.
+      // const resultBase64 = await generateImage(prompt, aspectRatio);
+      // setGeneratedImage(`data:image/jpeg;base64,${resultBase64}`);
+      setError('คุณสมบัติด้าน AI ถูกปิดใช้งาน');
     } catch (err) {
-      setError('สร้างรูปภาพไม่สำเร็จ กรุณาลองใหม่อีกครั้ง');
+      // setError('สร้างรูปภาพไม่สำเร็จ กรุณาลองใหม่อีกครั้ง');
+      setError('คุณสมบัติด้าน AI ถูกปิดใช้งาน');
       console.error(err);
     } finally {
       setIsLoading(false);

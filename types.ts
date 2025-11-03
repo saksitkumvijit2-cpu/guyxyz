@@ -1,3 +1,4 @@
+
 import React from 'react';
 
 export enum DocumentStatus {
@@ -110,18 +111,19 @@ export interface EmployerDocument {
   status: DocumentStatus;
 }
 
-
-export interface NavigationItem {
-  id: string;
-  name: string;
-  icon: React.ReactNode;
-}
-
+// FIX: Add GroundingChunk to resolve import error in ResearchAssistant.tsx
 export interface GroundingChunk {
   web?: {
     uri: string;
     title: string;
   };
+}
+
+
+export interface NavigationItem {
+  id: string;
+  name: string;
+  icon: React.ReactNode;
 }
 
 // New Types for Case Management Feature

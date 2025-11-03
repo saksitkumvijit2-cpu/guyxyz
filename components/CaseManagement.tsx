@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Case, Task, CaseStatus, Employer, Worker, CaseDocument } from '../types';
 import { fetchEmployers, fetchCases, saveCases } from '../services/apiService';
-import { suggestTasksForCase } from '../services/geminiService';
 import { Spinner, TrashIcon, PencilIcon, DocumentIcon, UploadIcon, AlertTriangleIcon, GlobeIcon, BuildingOfficeIcon } from './Icons';
 
 interface CaseTemplate {
@@ -65,8 +64,6 @@ export const CaseManagement: React.FC = () => {
         dueDate: ''
     });
     const [customTitle, setCustomTitle] = useState('');
-    const [suggestedTasks, setSuggestedTasks] = useState<Omit<Task, 'id' | 'completed'>[]>([]);
-    const [isSuggestingTasks, setIsSuggestingTasks] = useState(false);
     const [newTaskDescription, setNewTaskDescription] = useState('');
 
     const [isEditing, setIsEditing] = useState(false);
@@ -116,7 +113,6 @@ export const CaseManagement: React.FC = () => {
         setIsModalOpen(true);
         setNewCaseData({ templateKey: '', employerId: '', workerId: '', assignee: '', dueDate: '' });
         setCustomTitle('');
-        setSuggestedTasks([]);
     };
 
     const handleOpenDetailsModal = (caseData: Case) => {
@@ -134,26 +130,6 @@ export const CaseManagement: React.FC = () => {
         setIsEditing(false);
         setEditingCaseData(null);
     };
-    
-    useEffect(() => {
-        const selectedTemplate = CASE_TEMPLATES.find(t => t.key === newCaseData.templateKey);
-        const titleForSuggestion = selectedTemplate?.title;
-
-        if (titleForSuggestion && isCreating) {
-            const timer = setTimeout(async () => {
-                setIsSuggestingTasks(true);
-                try {
-                    const tasks = await suggestTasksForCase(titleForSuggestion);
-                    setSuggestedTasks(tasks);
-                } catch (error) {
-                    console.error("Failed to suggest tasks:", error);
-                } finally {
-                    setIsSuggestingTasks(false);
-                }
-            }, 500); // Debounce for 0.5 second
-            return () => clearTimeout(timer);
-        }
-    }, [newCaseData.templateKey, isCreating]);
 
     const handleCreateCase = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -167,19 +143,13 @@ export const CaseManagement: React.FC = () => {
 
         const finalTitle = `${selectedTemplate.title} - ${selectedWorker.name}`;
 
-        const finalTasks: Task[] = suggestedTasks.map((task, index) => ({
-            ...task,
-            id: Date.now() + index,
-            completed: false,
-        }));
-
         const newCase: Case = {
             id: Date.now(),
             title: finalTitle,
             workerId: Number(newCaseData.workerId),
             employerId: Number(newCaseData.employerId),
             status: CaseStatus.Pending,
-            tasks: finalTasks,
+            tasks: [], // Start with an empty task list
             assignee: newCaseData.assignee,
             dueDate: newCaseData.dueDate,
             documents: [],
@@ -393,16 +363,7 @@ export const CaseManagement: React.FC = () => {
                             <input type="date" name="dueDate" value={newCaseData.dueDate} onChange={handleInputChange} required className="mt-1 w-full input-style"/>
                         </div>
                     </div>
-                    <div>
-                        <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">รายการสิ่งที่ต้องทำ (AI แนะนำ)</h4>
-                        {isSuggestingTasks ? <div className="flex items-center text-sm text-gray-500"><Spinner className="h-4 w-4 text-primary-500 mr-2"/>กำลังค้นหา...</div> : 
-                         suggestedTasks.length > 0 ? (
-                            <ul className="space-y-2 max-h-40 overflow-y-auto p-3 bg-gray-50 dark:bg-gray-700 rounded-md border border-gray-200 dark:border-gray-600">
-                                {suggestedTasks.map((task, index) => <li key={index} className="text-sm">{task.description}</li>)}
-                            </ul>
-                         ) : <p className="text-xs text-gray-500">เลือกประเภทเคสเพื่อรับคำแนะนำอัตโนมัติ</p>
-                        }
-                    </div>
+                    
                     <div className="pt-4 flex justify-end gap-2">
                          <button type="button" onClick={handleCloseModal} className="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-500">ยกเลิก</button>
                         <button type="submit" className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700">สร้างเคส</button>
